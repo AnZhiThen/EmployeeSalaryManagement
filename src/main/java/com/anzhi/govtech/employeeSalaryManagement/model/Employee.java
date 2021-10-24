@@ -12,7 +12,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.Min;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Data
 @Getter
@@ -20,7 +19,6 @@ import java.util.Date;
 @Builder
 @With
 public class Employee {
-
     @Id
     @NonNull
     private Long eid;

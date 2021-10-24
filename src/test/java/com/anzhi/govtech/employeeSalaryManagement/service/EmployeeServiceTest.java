@@ -9,10 +9,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class EmployeeServiceTest {
     private String someId = "E100";
@@ -42,7 +39,7 @@ class EmployeeServiceTest {
             public void itShouldPass() throws Exception {
                 subject.create(someEmployee);
 
-                verify(employeeRepository).save(someEmployee);
+                verify(employeeRepository, times(1)).save(someEmployee);
             }
         }
 
@@ -89,7 +86,6 @@ class EmployeeServiceTest {
                     .salary(someSalary)
                     .startDate(someStartDate)
                     .build();
-
             subject.update(e);
 
             verify(employeeRepository).save(e);
