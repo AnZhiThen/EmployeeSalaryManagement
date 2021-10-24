@@ -14,8 +14,9 @@ public class EmployeeTest {
     private String someName = "Harry Potter";
     private double someSalary = 1000.0;
     private LocalDate someStartDate = LocalDate.parse("2020-01-08");
+    private Long someEid = 1234L;
     private Employee expectedEmployee = Employee.builder()
-            .eid(100L)
+            .eid(someEid)
             .id(someId)
             .login(someLogin)
             .name(someName)
@@ -26,7 +27,7 @@ public class EmployeeTest {
     @Test
     public void testValidEmployee(){
         Employee e = Employee.builder()
-                .eid(100L)
+                .eid(someEid)
                 .id(someId)
                 .login(someLogin)
                 .name(someName)
