@@ -5,8 +5,11 @@ import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -214,14 +217,62 @@ class EmployeeServiceTest {
 
     @Nested
     class GetAllEmployees{
+        Double someMinSalary = 0.0;
+        Double someMaxSalary = 4000.0;
+        String someSort = "id";
+        String someOrder = "asc";
+        Integer someLimit = 1;
+        Integer someOffset = 0;
+
         @Nested
-        class ValidQuery{
+        class ValidParameters {
+
             @Test
-            public void whenNoParameters(){
-                List<Employee> employeeList = subject.getAll();
-                verify(employeeRepository, times(1)).findAll();
+            public void whenItShouldReturn() throws Exception {
+                when(employeeRepository.advancedSearch(PageRequest.of(someOffset, someLimit), someMinSalary, someMaxSalary))
+                        .thenReturn(Arrays.asList(someEmployee));
+                List<Employee> employeeList = subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, someLimit, someOffset);
+                verify(employeeRepository, times(1)).advancedSearch(PageRequest.of(someOffset, someLimit, Sort.by(someSort).ascending())
+                        , someMinSalary, someMaxSalary);
+            }
+        }
+
+        @Nested
+        class InvalidParameters {
+            @Test
+            public void shouldFailWhenInvalidMinSalary() throws Exception {
+                assertThatThrownBy(() -> subject.getAll(-1.0, someMaxSalary, someSort, someOrder, someLimit, someOffset))
+                        .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min/Max Salary should not be negative");
+                verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
+            @Test
+            public void shouldFailWhenInvalidMaxSalary() throws Exception {
+                assertThatThrownBy(() -> subject.getAll(someMinSalary, -1.0, someSort, someOrder, someLimit, someOffset))
+                        .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min/Max Salary should not be negative");
+                verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+            }
+
+            @Test
+            public void shouldFailWhenMaxIsSmallerThanMin() throws Exception {
+                assertThatThrownBy(() -> subject.getAll(someMinSalary + 1, someMinSalary, someSort, someOrder, someLimit, someOffset))
+                        .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min salary is larger than Max Salary");
+                verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+            }
+
+            @Test
+            public void shouldFailWhenLimitNegative() throws Exception {
+                assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, -1, someOffset))
+                        .isInstanceOf(Exception.class).hasMessage("Bad parameters: Limit should not be less than 1");
+                verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+            }
+
+            @Test
+            public void shouldFailWhenOffsetNegative() throws Exception {
+                assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, someLimit, -1))
+                        .isInstanceOf(Exception.class).hasMessage("Bad parameters: Offset should not be negative");
+                verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+            }
         }
     }
 }

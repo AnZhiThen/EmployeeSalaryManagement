@@ -64,8 +64,27 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees(){
-        return null;
+    public ResponseEntity<HashMap> getAllEmployees(
+            @RequestParam(value = "minSalary", defaultValue = "0.0") Double minSalary,
+            @RequestParam(value = "maxSalary", defaultValue = "4000.0") Double maxSalary,
+            @RequestParam(value = "sort", defaultValue = "id") String sort,
+            @RequestParam(value = "order", defaultValue = "asc") String order,
+            @RequestParam(value = "limit", defaultValue = "50") Integer limit,
+            @RequestParam(value = "offset", defaultValue = "0") Integer offset)
+    {
+        try {
+            List<Employee> employeeList = employeeService.getAll(minSalary, maxSalary, sort, order, limit, offset);
+            HashMap<String, List<Employee>> body = new HashMap<>();
+            body.put("results", employeeList);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            return new ResponseEntity<HashMap>(body, headers, HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return getResponseEntityWithMessage(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }
 

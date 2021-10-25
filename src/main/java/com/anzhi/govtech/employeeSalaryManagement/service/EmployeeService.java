@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -73,9 +76,25 @@ public class EmployeeService {
         employeeRepository.deleteEmployeeById(employeeId);
     }
 
-    public List<Employee> getAll() {
-        List<Employee> result = new ArrayList<>();
-        employeeRepository.findAll().forEach(result::add);
-        return result;
+    public List<Employee> getAll(Double minSalary, Double maxSalary, String sort, String order, Integer limit, Integer offset) throws Exception {
+        if (minSalary < 0 || maxSalary < 0) {
+            throw new Exception("Bad parameters: Min/Max Salary should not be negative");
+        }
+
+        if (minSalary > maxSalary) {
+            throw new Exception("Bad parameters: Min salary is larger than Max Salary");
+        }
+
+        if (limit < 1) {
+            throw new Exception("Bad parameters: Limit should not be less than 1");
+        }
+
+        if (offset < 0) {
+            throw new Exception("Bad parameters: Offset should not be negative");
+        }
+        Sort s = order.equals("asc") ? Sort.by(sort).ascending() : Sort.by(sort).descending();
+
+        Pageable p = PageRequest.of(offset, limit, s);
+        return employeeRepository.advancedSearch(p, minSalary, maxSalary);
     }
 }

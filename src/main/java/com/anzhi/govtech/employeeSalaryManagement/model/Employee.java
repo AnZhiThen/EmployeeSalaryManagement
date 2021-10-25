@@ -33,7 +33,6 @@ import java.time.LocalDate;
 public class Employee {
 
     @Id
-    @NonNull
     @GeneratedValue(strategy= GenerationType.AUTO)
     @JsonIgnore
     private Long eid;

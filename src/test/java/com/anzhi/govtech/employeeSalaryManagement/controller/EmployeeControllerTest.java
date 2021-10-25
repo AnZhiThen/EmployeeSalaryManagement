@@ -3,14 +3,17 @@ package com.anzhi.govtech.employeeSalaryManagement.controller;
 import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
 import com.anzhi.govtech.employeeSalaryManagement.repository.EmployeeRepository;
 import com.anzhi.govtech.employeeSalaryManagement.service.EmployeeService;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -123,23 +126,33 @@ public class EmployeeControllerTest {
                 assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
                 assertThat(res.getBody().get("message")).isEqualTo(message);
-                verify(employeeRepository,never()).save(someEmployee);
+                verify(employeeRepository, never()).save(someEmployee);
             }
         }
     }
 
     @Nested
     class GetAllEmployees{
+        Double someMinSalary = 0.0;
+        Double someMaxSalary = 4000.0;
+        String someSort = "id";
+        String order = "asc";
+        Integer someLimit = 1;
+        Integer someOffset = 0;
+        Pageable somePageable = PageRequest.of(someOffset, someLimit, Sort.by(someSort).ascending());
 
         @Nested
         class WhenReturn200{
-
             @Test
-            public void whenNoQueryParameters(){
-
+            public void itShouldReturn(){
+                when(employeeRepository.advancedSearch(somePageable, someMinSalary, someMaxSalary))
+                        .thenReturn(Arrays.asList(someEmployee));
+                ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, someMaxSalary, someSort, order, someLimit, someOffset);
+                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                assertThat(res.getBody().get("results")).isEqualTo(Arrays.asList(someEmployee));
+                verify(employeeRepository, times(1)).advancedSearch(somePageable, someMinSalary, someMaxSalary);
             }
-
         }
-
     }
 }
