@@ -155,4 +155,119 @@ public class EmployeeControllerTest {
             }
         }
     }
+
+    @Nested
+    class DeleteEmployee {
+        @Nested
+        class whenResponseStatus200 {
+            @Test
+            public void itShouldReturn() {
+                when(employeeRepository.existsEmployeeById(someId)).thenReturn(true);
+                ResponseEntity<HashMap> res = subject.deleteEmployee(someId);
+                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                assertThat(res.getBody().get("message")).isEqualTo("Successfully deleted");
+                verify(employeeRepository, times(1)).existsEmployeeById(someId);
+                verify(employeeRepository, times(1)).deleteEmployeeById(someId);
+            }
+        }
+
+        @Nested
+        class whenResponseStatus4xx {
+            @Test
+            public void whenNoSuchEmployee() {
+                when(employeeRepository.existsEmployeeById(someId)).thenReturn(false);
+                ResponseEntity<HashMap> res = subject.deleteEmployee(someId);
+                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                assertThat(res.getBody().get("message")).isEqualTo("No such employee");
+                verify(employeeRepository, times(1)).existsEmployeeById(someId);
+                verify(employeeRepository, never()).deleteEmployeeById(someId);
+            }
+        }
+    }
+
+    @Nested
+    class UpdateEmployee {
+        @Nested
+        class whenResponseStatus200 {
+            @Test
+            public void itShouldReturn() {
+                when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
+                ResponseEntity<HashMap> res = subject.updateEmployee(someId, someEmployee);
+                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                assertThat(res.getBody().get("message")).isEqualTo("Successfully updated");
+                verify(employeeRepository, times(1)).findEmployeeById(someId);
+            }
+        }
+
+        @Nested
+        class whenResponseStatus4xx {
+            @Nested
+            class whenEmployeeIdExist {
+                @Nested
+                class whenEmployeeLoginExistWithDifferentId {
+                    @Test
+                    public void itShouldReturn400() {
+                        when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
+                        when(employeeRepository.existsEmployeeByLoginAndIdNot(someEmployee.getLogin(), someId))
+                                .thenReturn(true);
+                        ResponseEntity<HashMap> res = subject.updateEmployee(someId, someEmployee);
+                        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                        assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                        assertThat(res.getBody().get("message")).isEqualTo("Employee login not unique");
+                        verify(employeeRepository, never()).save(any());
+                    }
+                }
+
+                @Nested
+                class whenEmployeeLoginIsUnique {
+                    @Nested
+                    class whenPositiveEmployeeSalary {
+                        @Nested
+                        class whenStartDateIsChanged {
+                            @Test
+                            public void itShouldReturn400() {
+                                when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
+                                Employee someOtherEmployee = someEmployee.withStartDate(LocalDate.parse("2020-08-09"));
+                                ResponseEntity<HashMap> res = subject.updateEmployee(someId, someOtherEmployee);
+                                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                                assertThat(res.getBody().get("message")).isEqualTo("Invalid start date");
+                                verify(employeeRepository, never()).save(any());
+                            }
+                        }
+                    }
+
+                    @Nested
+                    class whenNegativeEmployeeSalary {
+                        @Test
+                        public void itShouldReturn400() {
+                            when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
+                            Employee someOtherEmployee = someEmployee.withSalary(-1.0);
+                            ResponseEntity<HashMap> res = subject.updateEmployee(someId, someOtherEmployee);
+                            assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                            assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                            assertThat(res.getBody().get("message")).isEqualTo("Invalid salary");
+                            verify(employeeRepository, never()).save(any());
+                        }
+                    }
+                }
+            }
+
+            @Nested
+            class whenEmployeeIdDoesNotExist {
+                @Test
+                public void itShouldReturn400() {
+                    when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.empty());
+                    ResponseEntity<HashMap> res = subject.updateEmployee(someId, someEmployee);
+                    assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                    assertThat(res.getBody().get("message")).isEqualTo("No such employee");
+                    verify(employeeRepository, never()).save(any());
+                }
+            }
+        }
+    }
 }

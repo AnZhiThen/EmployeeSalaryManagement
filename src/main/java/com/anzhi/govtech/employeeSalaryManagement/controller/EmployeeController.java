@@ -86,5 +86,25 @@ public class EmployeeController {
             return getResponseEntityWithMessage(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @DeleteMapping(path = "{id}")
+    public ResponseEntity<HashMap> deleteEmployee(@PathVariable("id") String id) {
+        try {
+            employeeService.delete(id);
+            return getResponseEntityWithMessage("Successfully updated", HttpStatus.OK);
+        } catch(Exception ex) {
+            return getResponseEntityWithMessage(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping(path = "{id}")
+    public ResponseEntity<HashMap> updateEmployee(@PathVariable("id") String id, @RequestBody Employee employee) {
+        try {
+            employeeService.update(id, employee);
+            return getResponseEntityWithMessage("Successfully updated", HttpStatus.OK);
+        } catch(Exception ex) {
+            return getResponseEntityWithMessage(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
 
