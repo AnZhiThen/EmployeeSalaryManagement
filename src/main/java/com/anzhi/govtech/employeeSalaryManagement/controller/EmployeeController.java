@@ -91,7 +91,7 @@ public class EmployeeController {
     public ResponseEntity<HashMap> deleteEmployee(@PathVariable("id") String id) {
         try {
             employeeService.delete(id);
-            return getResponseEntityWithMessage("Successfully updated", HttpStatus.OK);
+            return getResponseEntityWithMessage("Successfully deleted", HttpStatus.OK);
         } catch(Exception ex) {
             return getResponseEntityWithMessage(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }

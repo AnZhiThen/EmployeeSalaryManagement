@@ -28,7 +28,6 @@ public class EmployeeControllerTest {
     private LocalDate someStartDate = LocalDate.parse("2020-01-08");
     private Long someEid = 1234L;
     private Employee someEmployee = Employee.builder()
-            .eid(someEid)
             .id(someId)
             .login(someLogin)
             .name(someName)

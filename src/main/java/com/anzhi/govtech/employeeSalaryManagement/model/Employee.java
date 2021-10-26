@@ -12,11 +12,7 @@ import lombok.With;
 import org.hibernate.annotations.Generated;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 
 import java.time.LocalDate;
@@ -31,16 +27,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Table(name = "EMPLOYEE")
 public class Employee {
-
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    @JsonIgnore
-    private Long eid;
-
     @NonNull
+    @Id
     private String id;
 
     @NonNull
+    @Column(unique = true)
     private String login;
 
     @NonNull
