@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -37,14 +38,13 @@ public class UploadController {
     @PostMapping
     public ResponseEntity uploadEmployeeData(@RequestParam("file") MultipartFile file) {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"));
             String line = "";
             ArrayList<String> lines = new ArrayList<>();
             // skip first row for column names
             br.readLine();
             while ((line = br.readLine()) != null) {
                 lines.add(line);
-                System.out.println(line);
             }
             br.close();
             uploadService.validateAndProcessList(lines);
