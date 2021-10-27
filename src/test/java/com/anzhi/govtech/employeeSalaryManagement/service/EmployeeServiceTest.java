@@ -24,7 +24,6 @@ class EmployeeServiceTest {
     private String someName = "Harry Potter";
     private double someSalary = 1000.0;
     private LocalDate someStartDate = LocalDate.parse("2020-01-08");
-    private Long someEid = 1234L;
     private Employee someEmployee = Employee.builder()
             .id(someId)
             .login(someLogin)
@@ -43,34 +42,32 @@ class EmployeeServiceTest {
             @Test
             public void itShouldPass() throws Exception {
                 subject.create(someEmployee);
-
                 verify(employeeRepository, times(1)).save(someEmployee);
             }
         }
 
         @Nested
-        class InvalidEmployee{
+        class InvalidEmployee {
             @Test
             public void itShouldFailWhenDuplicatedLogin() throws Exception {
                 when(employeeRepository.existsEmployeeByLogin(someEmployee.getLogin()))
                         .thenReturn(true);
-
                 invalidEmployeeVerification(someEmployee, "Employee login not unique");
             }
             @Test
             public void itShouldFailWhenDuplicatedId() throws Exception {
                  when(employeeRepository.existsEmployeeById(someEmployee.getId()))
                         .thenReturn(true);
-
                 invalidEmployeeVerification(someEmployee, "Employee ID already exists");
             }
             @Test
-            public void itShouldFailWhenNegativeSalary(){
+            public void itShouldFailWhenNegativeSalary() {
                 Employee negativeSalaryEmployee = someEmployee.withSalary(-100.0);
 
                 invalidEmployeeVerification(negativeSalaryEmployee, "Invalid salary");
             }
 
+            @Test
             private void invalidEmployeeVerification(final Employee employee, final String errorMessage) {
                 assertThatThrownBy(() -> subject.create(employee))
                         .isInstanceOf(Exception.class).hasMessage(errorMessage);
@@ -86,15 +83,15 @@ class EmployeeServiceTest {
             @Test
             public void itShouldReturn() throws Exception {
                 when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
-                Employee e = subject.read(someId);
-                assertThat(someEmployee).isEqualTo(e);
+                Employee employee = subject.read(someId);
+                assertThat(someEmployee).isEqualTo(employee);
             }
         }
 
         @Nested
         class Invalid {
             @Test
-            public void itShouldNotReturn() throws Exception {
+            public void itShouldNotReturn() {
                 String nonExistentId = "testId";
                 when(employeeRepository.findEmployeeById(nonExistentId)).thenReturn(Optional.empty());
                 assertThatThrownBy(() -> subject.read(someId))
@@ -225,7 +222,6 @@ class EmployeeServiceTest {
 
         @Nested
         class ValidParameters {
-
             @Test
             public void whenItShouldReturn() throws Exception {
                 when(employeeRepository.advancedSearch(PageRequest.of(someOffset, someLimit), someMinSalary, someMaxSalary))
@@ -239,35 +235,35 @@ class EmployeeServiceTest {
         @Nested
         class InvalidParameters {
             @Test
-            public void shouldFailWhenInvalidMinSalary() throws Exception {
+            public void shouldFailWhenInvalidMinSalary() {
                 assertThatThrownBy(() -> subject.getAll(-1.0, someMaxSalary, someSort, someOrder, someLimit, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min/Max Salary should not be negative");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenInvalidMaxSalary() throws Exception {
+            public void shouldFailWhenInvalidMaxSalary() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary, -1.0, someSort, someOrder, someLimit, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min/Max Salary should not be negative");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenMaxIsSmallerThanMin() throws Exception {
+            public void shouldFailWhenMaxIsSmallerThanMin() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary + 1, someMinSalary, someSort, someOrder, someLimit, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min salary is larger than Max Salary");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenLimitNegative() throws Exception {
+            public void shouldFailWhenLimitNegative() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, -1, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Limit should not be less than 1");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenOffsetNegative() throws Exception {
+            public void shouldFailWhenOffsetNegative() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, someLimit, -1))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Offset should not be negative");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());

@@ -21,13 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class EmployeeControllerTest {
-    private String someId = "E100";
-    private String someLogin = "GT-HPotter";
-    private String someName = "Harry Potter";
-    private double someSalary = 1000.0;
-    private LocalDate someStartDate = LocalDate.parse("2020-01-08");
-    private Long someEid = 1234L;
-    private Employee someEmployee = Employee.builder()
+    private final String someId = "E100";
+    private final String someLogin = "GT-HPotter";
+    private final String someName = "Harry Potter";
+    private final double someSalary = 1000.0;
+    private final LocalDate someStartDate = LocalDate.parse("2020-01-08");
+    private final Employee someEmployee = Employee.builder()
             .id(someId)
             .login(someLogin)
             .name(someName)
@@ -44,7 +43,7 @@ public class EmployeeControllerTest {
         @Nested
         class WhenResponseStatus200 {
             @Test
-            public void itShouldReturn() throws Exception {
+            public void itShouldReturn() {
                 when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
                 ResponseEntity<Employee> res = subject.getEmployee(someId);
                 assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -55,15 +54,12 @@ public class EmployeeControllerTest {
         }
 
         @Nested
-        class WhenResponseStatus4xx{
+        class WhenResponseStatus4xx {
             @Test
-            public void whenNoSuchEmployee() throws Exception {
+            public void whenNoSuchEmployee() {
                 when(employeeRepository.findEmployeeById(someEmployee.getId())).thenReturn(Optional.empty());
-
                 ResponseEntity<HashMap> res = subject.getEmployee(someId);
-                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                assertThat(res.getBody().get("message")).isEqualTo("No such employee");
+                verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "No such employee");
                 verify(employeeRepository, times(1)).findEmployeeById(someId);
             }
         }
@@ -74,64 +70,56 @@ public class EmployeeControllerTest {
         @Nested
         class WhenReturn201 {
             @Test
-            public void itShouldReturn() throws Exception {
+            public void itShouldReturn() {
                 ResponseEntity<HashMap> res = subject.postEmployee(someEmployee);
-                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                assertThat(res.getBody().get("message")).isEqualTo("Successfully created");
+                verifyResponseEntityWithMessage(res, HttpStatus.CREATED, "Successfully created");
                 verify(employeeRepository, times(1)).save(someEmployee);
             }
         }
 
         @Nested
         class WhenReturn4xx {
-
             @Nested
-            class whenEmployeeIdExist{
+            class WhenEmployeeIdExist {
                 @Test
-                public void itShouldReturn400() throws Exception{
+                public void itShouldReturn400() {
                     when(employeeRepository.existsEmployeeById(someEmployee.getId())).thenReturn(true);
-
                     ResponseEntity<HashMap> res = subject.postEmployee(someEmployee);
-                    verification(res, "Employee ID already exists");
+                    verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Employee ID already exists");
+                    verify(employeeRepository, never()).save(someEmployee);
                 }
             }
 
             @Nested
-            class whenEmployeeIdDoesNotExist{
+            class WhenEmployeeIdDoesNotExist {
                 @Nested
-                class whenEmployeeLoginIsNotUnique {
+                class WhenEmployeeLoginIsNotUnique {
                     @Test
-                    public void itShouldReturn400() throws Exception {
+                    public void itShouldReturn400() {
                         when(employeeRepository.existsEmployeeByLogin(someEmployee.getLogin())).thenReturn(true);
 
                         ResponseEntity<HashMap> res = subject.postEmployee(someEmployee);
-                        verification(res, "Employee login not unique");
+                        verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Employee login not unique");
+                        verify(employeeRepository, never()).save(someEmployee);
                     }
                 }
 
                 @Nested
                 class whenEmployeeLoginIsUnique{
                     @Test
-                    public void whenSalaryIsNegative(){
+                    public void whenSalaryIsNegative() {
                         Employee negativeSalaryEmployee = someEmployee.withSalary(-100);
                         ResponseEntity<HashMap> res = subject.postEmployee(negativeSalaryEmployee);
-                        verification(res, "Invalid salary");
+                        verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Invalid salary");
+                        verify(employeeRepository, never()).save(someEmployee);
                     }
                 }
-            }
-
-            private void verification(final ResponseEntity<HashMap> res, String message) {
-                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                assertThat(res.getBody().get("message")).isEqualTo(message);
-                verify(employeeRepository, never()).save(someEmployee);
             }
         }
     }
 
     @Nested
-    class GetAllEmployees{
+    class GetAllEmployees {
         Double someMinSalary = 0.0;
         Double someMaxSalary = 4000.0;
         String someSort = "id";
@@ -141,9 +129,9 @@ public class EmployeeControllerTest {
         Pageable somePageable = PageRequest.of(someOffset, someLimit, Sort.by(someSort).ascending());
 
         @Nested
-        class WhenReturn200{
+        class WhenReturn200 {
             @Test
-            public void itShouldReturn(){
+            public void itShouldReturn() {
                 when(employeeRepository.advancedSearch(somePageable, someMinSalary, someMaxSalary))
                         .thenReturn(Arrays.asList(someEmployee));
                 ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, someMaxSalary, someSort, order, someLimit, someOffset);
@@ -151,6 +139,49 @@ public class EmployeeControllerTest {
                 assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
                 assertThat(res.getBody().get("results")).isEqualTo(Arrays.asList(someEmployee));
                 verify(employeeRepository, times(1)).advancedSearch(somePageable, someMinSalary, someMaxSalary);
+            }
+        }
+
+        @Nested
+        class WhenReturn4xx {
+            @Nested
+            class WhenMinMaxSalaryIsPositive {
+                @Nested
+                class WhenLimitIsPositive {
+                    @Test
+                    public void itShouldFailWhenOffsetIsNegative() {
+                        ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, someMaxSalary, someSort, order, someLimit, -1);
+                        verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Bad parameters: Offset should not be negative");
+                        verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+                    }
+                }
+
+                @Nested
+                class WhenLimitIsNegative {
+                    @Test
+                    public void itShouldFailWhenLimitIsNegative() {
+                        ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, someMaxSalary, someSort, order, 0, someOffset);
+                        verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Bad parameters: Limit should not be less than 1");
+                        verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+                    }
+                }
+            }
+
+            @Nested
+            class WhenMinMaxSalaryIsNegative {
+                @Test
+                public void itShouldFailWhenMinSalaryIsNegative() {
+                    ResponseEntity<HashMap> res = subject.getAllEmployees(-1.00, someMaxSalary, someSort, order, someLimit, someOffset);
+                    verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Bad parameters: Min/Max Salary should not be negative");
+                    verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+                }
+
+                @Test
+                public void itShouldFailWhenMaxSalaryIsNegative() {
+                    ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, -someMaxSalary, someSort, order, someLimit, someOffset);
+                    verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Bad parameters: Min/Max Salary should not be negative");
+                    verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+                }
             }
         }
     }
@@ -163,9 +194,7 @@ public class EmployeeControllerTest {
             public void itShouldReturn() {
                 when(employeeRepository.existsEmployeeById(someId)).thenReturn(true);
                 ResponseEntity<HashMap> res = subject.deleteEmployee(someId);
-                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
-                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                assertThat(res.getBody().get("message")).isEqualTo("Successfully deleted");
+                verifyResponseEntityWithMessage(res, HttpStatus.OK, "Successfully deleted");
                 verify(employeeRepository, times(1)).existsEmployeeById(someId);
                 verify(employeeRepository, times(1)).deleteEmployeeById(someId);
             }
@@ -177,9 +206,7 @@ public class EmployeeControllerTest {
             public void whenNoSuchEmployee() {
                 when(employeeRepository.existsEmployeeById(someId)).thenReturn(false);
                 ResponseEntity<HashMap> res = subject.deleteEmployee(someId);
-                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                assertThat(res.getBody().get("message")).isEqualTo("No such employee");
+                verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "No such employee");
                 verify(employeeRepository, times(1)).existsEmployeeById(someId);
                 verify(employeeRepository, never()).deleteEmployeeById(someId);
             }
@@ -194,9 +221,7 @@ public class EmployeeControllerTest {
             public void itShouldReturn() {
                 when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
                 ResponseEntity<HashMap> res = subject.updateEmployee(someId, someEmployee);
-                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
-                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                assertThat(res.getBody().get("message")).isEqualTo("Successfully updated");
+                verifyResponseEntityWithMessage(res, HttpStatus.OK, "Successfully updated");
                 verify(employeeRepository, times(1)).findEmployeeById(someId);
             }
         }
@@ -213,9 +238,7 @@ public class EmployeeControllerTest {
                         when(employeeRepository.existsEmployeeByLoginAndIdNot(someEmployee.getLogin(), someId))
                                 .thenReturn(true);
                         ResponseEntity<HashMap> res = subject.updateEmployee(someId, someEmployee);
-                        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                        assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                        assertThat(res.getBody().get("message")).isEqualTo("Employee login not unique");
+                        verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Employee login not unique");
                         verify(employeeRepository, never()).save(any());
                     }
                 }
@@ -231,9 +254,7 @@ public class EmployeeControllerTest {
                                 when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
                                 Employee someOtherEmployee = someEmployee.withStartDate(LocalDate.parse("2020-08-09"));
                                 ResponseEntity<HashMap> res = subject.updateEmployee(someId, someOtherEmployee);
-                                assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                                assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                                assertThat(res.getBody().get("message")).isEqualTo("Invalid start date");
+                                verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Invalid start date");
                                 verify(employeeRepository, never()).save(any());
                             }
                         }
@@ -246,9 +267,7 @@ public class EmployeeControllerTest {
                             when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
                             Employee someOtherEmployee = someEmployee.withSalary(-1.0);
                             ResponseEntity<HashMap> res = subject.updateEmployee(someId, someOtherEmployee);
-                            assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                            assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                            assertThat(res.getBody().get("message")).isEqualTo("Invalid salary");
+                            verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Invalid salary");
                             verify(employeeRepository, never()).save(any());
                         }
                     }
@@ -261,12 +280,16 @@ public class EmployeeControllerTest {
                 public void itShouldReturn400() {
                     when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.empty());
                     ResponseEntity<HashMap> res = subject.updateEmployee(someId, someEmployee);
-                    assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                    assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                    assertThat(res.getBody().get("message")).isEqualTo("No such employee");
+                    verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "No such employee");
                     verify(employeeRepository, never()).save(any());
                 }
             }
         }
+    }
+
+    private void verifyResponseEntityWithMessage(ResponseEntity<HashMap> res, HttpStatus status, String message) {
+        assertThat(res.getStatusCode()).isEqualTo(status);
+        assertThat(res.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(res.getBody().get("message")).isEqualTo(message);
     }
 }

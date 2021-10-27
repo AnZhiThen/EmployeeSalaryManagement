@@ -27,52 +27,51 @@ class EmployeeRepositoryIntegrationTest {
 
     private Employee someEmployee1 = Employee.builder()
             .id("e1")
-            .login("e1-login")
-            .name("anzhi")
+            .login("hpotter")
+            .name("Harry Potter")
             .salary(2000.0)
             .startDate(LocalDate.parse("2020-01-01"))
             .build();
 
     private Employee someEmployee2 = Employee.builder()
             .id("e2")
-            .login("e2-login")
-            .name("zhijie")
+            .login("rwesley")
+            .name("Ron Weasley")
             .salary(5000.0)
             .startDate(LocalDate.parse("2020-01-01"))
             .build();
 
-
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class AdvancedSearch{
+    class AdvancedSearch {
         @BeforeAll
-        public void before(){
+        public void before() {
             employeeRepository.save(someEmployee1);
             employeeRepository.save(someEmployee2);
         }
 
         @Test
-        public void itShouldReturnNothing(){
+        public void itShouldReturnNothing() {
             List<Employee> employeeList = employeeRepository.advancedSearch(Pageable.unpaged(), 0.0, 0.0);
             assertThat(employeeList.isEmpty()).isTrue();
         }
 
         @Test
-        public void itShouldReturnE1(){
+        public void itShouldReturnE1() {
             List<Employee> employeeList = employeeRepository.advancedSearch(Pageable.unpaged(), 0.0, 3000.0);
             assertThat(employeeList.isEmpty()).isFalse();
             assertThat(employeeList.get(0)).isEqualTo(someEmployee1);
         }
 
         @Test
-        public void itShouldReturnE2(){
+        public void itShouldReturnE2() {
             List<Employee> employeeList = employeeRepository.advancedSearch(Pageable.unpaged(), 3000.0, 6000.0);
             assertThat(employeeList.isEmpty()).isFalse();
             assertThat(employeeList.get(0)).isEqualTo(someEmployee2);
         }
 
         @Test
-        public void itShouldReturnIdAsc(){
+        public void itShouldReturnIdAsc() {
             List<Employee> employeeList = employeeRepository.advancedSearch(PageRequest.of(0, 10, Sort.by("id")), 0.0, 6000.0);
             assertThat(employeeList.isEmpty()).isFalse();
             assertThat(employeeList.get(0)).isEqualTo(someEmployee1);
@@ -80,7 +79,7 @@ class EmployeeRepositoryIntegrationTest {
         }
 
         @Test
-        public void itShouldReturnIdDesc(){
+        public void itShouldReturnIdDesc() {
             List<Employee> employeeList = employeeRepository.advancedSearch(PageRequest.of(0, 10, Sort.by("id").descending()), 0.0, 6000.0);
             assertThat(employeeList.isEmpty()).isFalse();
             assertThat(employeeList.get(0)).isEqualTo(someEmployee2);
@@ -88,7 +87,7 @@ class EmployeeRepositoryIntegrationTest {
         }
 
         @Test
-        public void itShouldReturnReturnNameAsc(){
+        public void itShouldReturnReturnNameAsc() {
             List<Employee> employeeList = employeeRepository.advancedSearch(PageRequest.of(0, 10, Sort.by("name").ascending()), 0.0, 6000.0);
             assertThat(employeeList.isEmpty()).isFalse();
             assertThat(employeeList.get(0)).isEqualTo(someEmployee1);
@@ -96,7 +95,7 @@ class EmployeeRepositoryIntegrationTest {
         }
 
         @Test
-        public void itShouldReturnReturnNameDesc(){
+        public void itShouldReturnReturnNameDesc() {
             List<Employee> employeeList = employeeRepository.advancedSearch(PageRequest.of(0, 10, Sort.by("name").descending()), 0.0, 6000.0);
             assertThat(employeeList.isEmpty()).isFalse();
             assertThat(employeeList.get(0)).isEqualTo(someEmployee2);

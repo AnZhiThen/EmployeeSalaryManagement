@@ -1,6 +1,5 @@
 package com.anzhi.govtech.employeeSalaryManagement.model;
 
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -24,7 +23,7 @@ public class EmployeeTest {
             .build();
 
     @Test
-    public void testValidEmployee(){
+    public void testValidEmployee() {
         Employee e = Employee.builder()
                 .id(someId)
                 .login(someLogin)
@@ -32,7 +31,6 @@ public class EmployeeTest {
                 .salary(someSalary)
                 .startDate(someStartDate)
                 .build();
-
         assertEquals(e, expectedEmployee);
     }
 }
