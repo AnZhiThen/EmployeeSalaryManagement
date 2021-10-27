@@ -94,7 +94,7 @@ public class EmployeeUploadServiceTest {
                         Arrays.asList("e0001, hpotter, Harry Potter, 1234.00, 2013-13-13")
                 );
                 assertThatThrownBy(() -> subject.validateAndProcessList(malformedCSV))
-                        .isInstanceOf(DateTimeParseException.class);
+                        .isInstanceOf(Exception.class);
                 verify(repo, never()).saveAll(someEmployeeList);
             }
 
