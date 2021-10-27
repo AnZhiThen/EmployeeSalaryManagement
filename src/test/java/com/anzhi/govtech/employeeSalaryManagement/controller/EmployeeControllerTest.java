@@ -97,7 +97,6 @@ public class EmployeeControllerTest {
                     @Test
                     public void itShouldReturn400() {
                         when(employeeRepository.existsEmployeeByLogin(someEmployee.getLogin())).thenReturn(true);
-
                         ResponseEntity<HashMap> res = subject.postEmployee(someEmployee);
                         verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Employee login not unique");
                         verify(employeeRepository, never()).save(someEmployee);
@@ -227,11 +226,11 @@ public class EmployeeControllerTest {
         }
 
         @Nested
-        class whenResponseStatus4xx {
+        class WhenResponseStatus4xx {
             @Nested
-            class whenEmployeeIdExist {
+            class WhenEmployeeIdExist {
                 @Nested
-                class whenEmployeeLoginExistWithDifferentId {
+                class WhenEmployeeLoginExistWithDifferentId {
                     @Test
                     public void itShouldReturn400() {
                         when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
@@ -244,11 +243,11 @@ public class EmployeeControllerTest {
                 }
 
                 @Nested
-                class whenEmployeeLoginIsUnique {
+                class WhenEmployeeLoginIsUnique {
                     @Nested
-                    class whenPositiveEmployeeSalary {
+                    class WhenPositiveEmployeeSalary {
                         @Nested
-                        class whenStartDateIsChanged {
+                        class WhenStartDateIsChanged {
                             @Test
                             public void itShouldReturn400() {
                                 when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
@@ -261,7 +260,7 @@ public class EmployeeControllerTest {
                     }
 
                     @Nested
-                    class whenNegativeEmployeeSalary {
+                    class WhenNegativeEmployeeSalary {
                         @Test
                         public void itShouldReturn400() {
                             when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
@@ -275,7 +274,7 @@ public class EmployeeControllerTest {
             }
 
             @Nested
-            class whenEmployeeIdDoesNotExist {
+            class WhenEmployeeIdDoesNotExist {
                 @Test
                 public void itShouldReturn400() {
                     when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.empty());

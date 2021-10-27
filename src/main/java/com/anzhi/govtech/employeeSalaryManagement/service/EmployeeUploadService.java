@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,10 @@ import java.util.stream.Collectors;
 public class EmployeeUploadService {
 
     private final EmployeeRepository employeeRepository;
+    private static final String[] DATE_FORMATS = new String[] {
+            "yyyy-MM-dd",
+            "dd-MMM-yy"
+    };
 
     @Autowired
     public EmployeeUploadService(final EmployeeRepository employeeRepository) {
@@ -53,7 +58,16 @@ public class EmployeeUploadService {
         if (salary < 0) {
             throw new Exception("Invalid salary");
         }
-        LocalDate startDate = LocalDate.parse(employeeDetails[4].trim());
+        LocalDate startDate = null;
+        for (String DATE_FORMAT : DATE_FORMATS) {
+            try {
+                startDate = LocalDate.parse(employeeDetails[4].trim(), DateTimeFormatter.ofPattern(DATE_FORMAT));
+            } catch (Exception e) {
+            }
+        }
+        if (startDate == null) {
+            throw new Exception("Invalid date");
+        }
         return Employee.builder()
                 .id(id)
                 .login(login)
