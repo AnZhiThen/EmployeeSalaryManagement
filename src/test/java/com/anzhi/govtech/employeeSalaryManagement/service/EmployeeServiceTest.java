@@ -2,15 +2,20 @@ package com.anzhi.govtech.employeeSalaryManagement.service;
 
 import com.anzhi.govtech.employeeSalaryManagement.repository.EmployeeRepository;
 import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
+import org.hibernate.QueryException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -200,7 +205,7 @@ class EmployeeServiceTest {
     }
 
     @Nested
-    class GetAllEmployees{
+    class GetAllEmployees {
         Double someMinSalary = 0.0;
         Double someMaxSalary = 4000.0;
         String someSort = "id";
@@ -255,6 +260,17 @@ class EmployeeServiceTest {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, someLimit, -1))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Offset should not be negative");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+            }
+
+            @Test
+            public void itShouldFailWhenSortIsNotEmployeeFieldNames() {
+                Sort sortSettings = Sort.by("someField").ascending();
+                Pageable page = PageRequest.of(someOffset, someLimit, sortSettings);
+                when(employeeRepository.advancedSearch(page, someMinSalary, someMaxSalary))
+                        .thenThrow(new QueryException("Encountered query exception"));
+                assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, "someField", someOrder, someLimit, someOffset))
+                        .isInstanceOf(Exception.class).hasMessage("Encountered query exception");
+                verify(employeeRepository, times(1)).advancedSearch(any(), any(), any());
             }
         }
     }

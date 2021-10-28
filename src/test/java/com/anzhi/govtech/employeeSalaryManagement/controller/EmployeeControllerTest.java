@@ -3,6 +3,7 @@ package com.anzhi.govtech.employeeSalaryManagement.controller;
 import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
 import com.anzhi.govtech.employeeSalaryManagement.repository.EmployeeRepository;
 import com.anzhi.govtech.employeeSalaryManagement.service.EmployeeService;
+import org.hibernate.QueryException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
@@ -153,11 +154,27 @@ public class EmployeeControllerTest {
             class WhenMinMaxSalaryIsPositive {
                 @Nested
                 class WhenLimitIsPositive {
-                    @Test
-                    public void itShouldFailWhenOffsetIsNegative() {
-                        ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, someMaxSalary, someSort, order, someLimit, -1);
-                        verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Bad parameters: Offset should not be negative");
-                        verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+                    @Nested
+                    class WhenOffsetIsPositive {
+                        @Test
+                        public void itShouldFailWhenSortIsNotEmployeeFieldNames() {
+                            Sort sortSettings = Sort.by("someField").ascending();
+                            Pageable page = PageRequest.of(someOffset, someLimit, sortSettings);
+                            when(employeeRepository.advancedSearch(page, someMinSalary, someMaxSalary))
+                                    .thenThrow(new QueryException("Encountered query exception"));
+                            ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, someMaxSalary, "someField", order, someLimit, someOffset);
+                            verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Encountered query exception");
+                            verify(employeeRepository, times(1)).advancedSearch(any(), any(), any());
+                        }
+                    }
+                    @Nested
+                    class WhenOffSetIsNegative {
+                        @Test
+                        public void itShouldFailWhenOffsetIsNegative() {
+                            ResponseEntity<HashMap> res = subject.getAllEmployees(someMinSalary, someMaxSalary, someSort, order, someLimit, -1);
+                            verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Bad parameters: Offset should not be negative");
+                            verify(employeeRepository, never()).advancedSearch(any(), any(), any());
+                        }
                     }
                 }
 

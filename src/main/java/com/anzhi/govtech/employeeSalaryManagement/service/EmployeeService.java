@@ -81,10 +81,14 @@ public class EmployeeService {
         if (offset < 0) {
             throw new Exception("Bad parameters: Offset should not be negative");
         }
-        Sort s = order.equals("asc") ? Sort.by(sort).ascending() : Sort.by(sort).descending();
+        Sort sortSettings = order.equals("dsc") ? Sort.by(sort).descending() : Sort.by(sort).ascending();
 
-        Pageable p = PageRequest.of(offset, limit, s);
-        return employeeRepository.advancedSearch(p, minSalary, maxSalary);
+        Pageable page = PageRequest.of(offset, limit, sortSettings);
+        try {
+            return employeeRepository.advancedSearch(page, minSalary, maxSalary);
+        } catch (Exception ex) {
+            throw new Exception("Encountered query exception");
+        }
     }
 
     public void validateEmployee(Employee e) throws Exception {
