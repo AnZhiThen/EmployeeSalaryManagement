@@ -53,8 +53,11 @@ gradlew test -t
 ✔️ Created the build in ([Build instructions](#creating-the-build))
 
 #### Building the docker image:
+Launch docker application
+
+In terminal enter command:
 ```
-docker build --build-arg JAR_FILE=build/libs/\*.jar -t employee-salary-service
+docker build --build-arg JAR_FILE=build/libs/\*.jar -t employee-salary-service .
 ```
 #### Launching the docker image with a container name:
 ```
@@ -81,17 +84,17 @@ Validation Rules
 - Any row starting with “#” is considered a comment and ignored
 - Details that exists in the current database will be updated
 - ID and Login must be unique
-- If there is an error the whole upload will fail 
+- If there is an error the whole upload will fail
 
 ##### Sample CSV:
- |  id  |  login  |  name  |  salary  |  startDate  | 
+|  id  |  login  |  name  |  salary  |  startDate  | 
  | :-------- | :------- | :------- | :------- | :------- |
- | e0001 | hpotter | Harry Potter | 1234.00 | 16-Nov-01 | 
- | e0002 | rwesley | Ron Weasley | 19234.50 | 2001-11-16 | 
- | e0003 | ssnape | Severus Snape | 4000.0 | 2001-11-16 | 
- | e0004 | rhagrid | Rubeus Hagrid | 3999.999 | 16-Nov-01 |
- | e0005 | voldemort | Lord Voldemort | 523.4 | 17-Nov-01 |
- | e0006 | gwesley | Ginny Weasley | 4000.004 | 18-Nov-01 | 
+| e0001 | hpotter | Harry Potter | 1234.00 | 16-Nov-01 | 
+| e0002 | rwesley | Ron Weasley | 19234.50 | 2001-11-16 | 
+| e0003 | ssnape | Severus Snape | 4000.0 | 2001-11-16 | 
+| e0004 | rhagrid | Rubeus Hagrid | 3999.999 | 16-Nov-01 |
+| e0005 | voldemort | Lord Voldemort | 523.4 | 17-Nov-01 |
+| e0006 | gwesley | Ginny Weasley | 4000.004 | 18-Nov-01 | 
 
 #### Read Multiple Employee Details
 
@@ -112,7 +115,7 @@ Request Params (All fields are **optional** to filter data)
 | `offset` | `int` | starting offset of results to return. Default is 0. |
 | `limit` | `int` | max number of results to return. Default is 50. |
 | `sort` | `string` | can be any of the fields in employee. Default is `id`. |
-| `order` | `string` | max number of results to return. Default is 0 => no limit. |
+| `order` | `string` | sort details by ascending or descending. Default is `asc`. Accepted inputs are `asc` or `dsc` |
 
 #### Create / Update Employee Details
 Create:
@@ -163,3 +166,26 @@ Request Params (All fields **required**)
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | id | `string` | unique alphanumeric ID assigned by the company.|
+
+## Key Assumptions and Decisions Made in building this project
+
+#### Key Assumptions:
+- Update API requires all employee fields to be present if not error is expected.
+- Start date of any employee cannot be updated.
+- First row is CSV is always ignored as they are for headers.
+
+#### Design Decisions:
+- Project is build using **Test Driven Development**(TDD) Where by test cases are written before the classes are created.
+- Employee Service is decoupled from Upload Service so that controller can reuse services and services can reuse repository and they are not affecting each other.
+- The decoupling also allow safety update service logic without affecting the other services
+
+
+## Resources
+Here are some of the libraries used in this project
+| Resources | Description     | Link |
+| :-------- | :------- | :------- |
+| Lombok | Provides annotations to assist in class building |  https://projectlombok.org/features/all |
+| H2 Database | Embed database that is used for this project    | https://mvnrepository.com/artifact/com.h2database/h2/|
+| Spring boot starter web | Provides annotations for HTTP controller features | https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web |
+| Spring Boot Starter Data JPA| Provides annotations to provide repository services | https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa |
+| Spring Boot Starter Test | Provides annotations to assist with creating unit tests |https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test|
