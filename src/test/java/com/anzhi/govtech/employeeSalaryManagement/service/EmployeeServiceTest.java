@@ -3,6 +3,7 @@ package com.anzhi.govtech.employeeSalaryManagement.service;
 import com.anzhi.govtech.employeeSalaryManagement.repository.EmployeeRepository;
 import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
@@ -59,19 +60,6 @@ class EmployeeServiceTest {
                  when(employeeRepository.existsEmployeeById(someEmployee.getId()))
                         .thenReturn(true);
                 invalidEmployeeVerification(someEmployee, "Employee ID already exists");
-            }
-            @Test
-            public void itShouldFailWhenNegativeSalary() {
-                Employee negativeSalaryEmployee = someEmployee.withSalary(-100.0);
-
-                invalidEmployeeVerification(negativeSalaryEmployee, "Invalid salary");
-            }
-
-            @Test
-            private void invalidEmployeeVerification(final Employee employee, final String errorMessage) {
-                assertThatThrownBy(() -> subject.create(employee))
-                        .isInstanceOf(Exception.class).hasMessage(errorMessage);
-                verify(employeeRepository, never()).save(employee);
             }
         }
     }
@@ -269,5 +257,53 @@ class EmployeeServiceTest {
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
         }
+    }
+
+    @Nested
+    class EmployeeValidation {
+        @Nested
+        class Valid {
+            @Test
+            public void itShouldReturnVoid() {
+                Assertions.assertDoesNotThrow(() -> subject.validateEmployee(someEmployee));
+            }
+        }
+
+        @Nested
+        class Invalid {
+            @Test
+            public void itShouldThrowInvalidId() {
+                Employee invalidIdEmployee = someEmployee.withId(null);
+                invalidEmployeeVerification(invalidIdEmployee, "Invalid ID");
+            }
+            @Test
+            public void itShouldThrowInvalidLogin() {
+                Employee invalidLoginEmployee = someEmployee.withLogin(null);
+                invalidEmployeeVerification(invalidLoginEmployee, "Invalid login");
+            }
+            @Test
+            public void itShouldThrowInvalidName() {
+                Employee invalidNameEmployee = someEmployee.withName(null);
+
+                invalidEmployeeVerification(invalidNameEmployee, "Invalid name");
+            }
+            @Test
+            public void itShouldThrowInvalidSalary() {
+                Employee negativeSalaryEmployee = someEmployee.withSalary(-100.0);
+                invalidEmployeeVerification(negativeSalaryEmployee, "Invalid salary");
+            }
+            @Test
+            public void itShouldThrowInvalidStartDate() {
+                Employee invalidStartDateEmployee = someEmployee.withStartDate(null);
+                invalidEmployeeVerification(invalidStartDateEmployee, "Invalid start date");
+            }
+        }
+    }
+
+    @Test
+    private void invalidEmployeeVerification(final Employee employee, final String errorMessage) {
+        assertThatThrownBy(() -> subject.create(employee))
+                .isInstanceOf(Exception.class).hasMessage(errorMessage);
+        verify(employeeRepository, never()).save(employee);
     }
 }

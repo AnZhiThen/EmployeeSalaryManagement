@@ -3,11 +3,8 @@ package com.anzhi.govtech.employeeSalaryManagement;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -41,6 +38,7 @@ public class CustomDateValidator extends StdDeserializer<LocalDate> {
             } catch (Exception e) {
             }
         }
-        throw new Exception("Date format is neither in yyyy-MM-dd or dd-MMM-yy");
+        return null;
     }
+
 }

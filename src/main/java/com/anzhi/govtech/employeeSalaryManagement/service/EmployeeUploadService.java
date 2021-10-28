@@ -58,22 +58,26 @@ public class EmployeeUploadService {
         if (salary < 0) {
             throw new Exception("Invalid salary");
         }
+        return Employee.builder()
+                .id(id)
+                .login(login)
+                .name(name)
+                .salary(salary)
+                .startDate(getDateFromEmployeeDetails(employeeDetails[4].trim()))
+                .build();
+    }
+
+    public LocalDate getDateFromEmployeeDetails(String date) throws Exception {
         LocalDate startDate = null;
         for (String DATE_FORMAT : DATE_FORMATS) {
             try {
-                startDate = LocalDate.parse(employeeDetails[4].trim(), DateTimeFormatter.ofPattern(DATE_FORMAT));
+                startDate = LocalDate.parse(date, DateTimeFormatter.ofPattern(DATE_FORMAT));
             } catch (Exception e) {
             }
         }
         if (startDate == null) {
             throw new Exception("Invalid date");
         }
-        return Employee.builder()
-                .id(id)
-                .login(login)
-                .name(name)
-                .salary(salary)
-                .startDate(startDate)
-                .build();
+        return startDate;
     }
 }

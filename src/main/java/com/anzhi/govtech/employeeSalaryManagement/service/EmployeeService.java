@@ -27,6 +27,7 @@ public class EmployeeService {
     }
 
     public void create(final Employee e) throws Exception {
+        validateEmployee(e);
         if (employeeRepository.existsEmployeeById(e.getId())) {
             throw new Exception("Employee ID already exists");
         }
@@ -35,14 +36,11 @@ public class EmployeeService {
             throw new Exception("Employee login not unique");
         }
 
-        if (e.getSalary() < 0) {
-            throw new Exception("Invalid salary");
-        }
-
         employeeRepository.save(e);
     }
 
     public void update(String employeeId, final Employee e) throws Exception {
+        validateEmployee(e);
         Optional<Employee> currentEmployee = employeeRepository.findEmployeeById(employeeId);
         if (!currentEmployee.isPresent()) {
             throw new Exception("No such employee");
@@ -50,10 +48,6 @@ public class EmployeeService {
 
         if (employeeRepository.existsEmployeeByLoginAndIdNot(e.getLogin(), employeeId)) {
             throw new Exception("Employee login not unique");
-        }
-
-        if (e.getSalary() < 0) {
-            throw new Exception("Invalid salary");
         }
 
         if (!currentEmployee.get().getStartDate().isEqual(e.getStartDate())) {
@@ -96,5 +90,15 @@ public class EmployeeService {
 
         Pageable p = PageRequest.of(offset, limit, s);
         return employeeRepository.advancedSearch(p, minSalary, maxSalary);
+    }
+
+    public void validateEmployee(Employee e) throws Exception {
+        if (e.getSalary() < 0) {
+            throw new Exception("Invalid salary");
+        }
+
+        if (e.getStartDate() == null) {
+            throw new Exception("Invalid start date");
+        }
     }
 }
