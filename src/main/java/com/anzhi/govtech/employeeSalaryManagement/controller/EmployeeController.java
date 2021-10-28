@@ -2,7 +2,6 @@ package com.anzhi.govtech.employeeSalaryManagement.controller;
 
 import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
 import com.anzhi.govtech.employeeSalaryManagement.service.EmployeeService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 

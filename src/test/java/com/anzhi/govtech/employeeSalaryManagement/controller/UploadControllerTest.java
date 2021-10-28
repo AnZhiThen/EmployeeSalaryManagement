@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import sun.security.util.IOUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,33 +20,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class UploadControllerTest {
-    private Employee someEmployee1 = Employee.builder()
+    private final Employee someEmployee1 = Employee.builder()
             .id("e0001")
             .login("hpotter")
             .name("Harry Potter")
             .salary(1234.00)
             .startDate(LocalDate.parse("2011-11-11"))
             .build();
-    private Employee someEmployee2 = Employee.builder()
+    private final Employee someEmployee2 = Employee.builder()
             .id("e0002")
             .login("rwesley")
             .name("Ron Weasley")
             .salary(19234.50)
             .startDate(LocalDate.parse("2012-11-11"))
             .build();
-    private Employee someEmployee3 = Employee.builder()
+    private final Employee someEmployee3 = Employee.builder()
             .id("e0003")
             .login("ssnape")
             .name("Severus Snape")
             .salary(4000.00)
             .startDate(LocalDate.parse("2013-11-11"))
             .build();
-    ArrayList<Employee> someEmployeeList = new ArrayList(Arrays.asList(
+    private final ArrayList<Employee> someEmployeeList = new ArrayList(Arrays.asList(
             someEmployee1,
             someEmployee2,
             someEmployee3
     ));
-    String someCSV = "id,login,name,salary,startDate\n" +
+    private final String someCSV = "id,login,name,salary,startDate\n" +
             "e0001,hpotter,Harry Potter,1234.00,2011-11-11\n" +
             "e0002,rwesley,Ron Weasley,19234.50,2012-11-11\n" +
             "e0003,ssnape,Severus Snape,4000.0,2013-11-11";
@@ -58,7 +57,7 @@ public class UploadControllerTest {
     @Nested
     class Upload {
         @Nested
-        class whenItReturn2xx {
+        class WhenItReturn2xx {
             @Test
             public void itShouldReturn200() {
                 MultipartFile multipartFile = new MockMultipartFile("file", someCSV.getBytes());
@@ -66,15 +65,10 @@ public class UploadControllerTest {
                 assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
                 verify(repo, times(1)).saveAll(someEmployeeList);
             }
-
-            @Test
-            public void getItShouldReturn202() {
-
-            }
         }
 
         @Nested
-        class whenItReturn400 {
+        class WhenItReturn400 {
             @Test
             public void itShouldReturn400() {
                 String someOtherCSV = someCSV + "\ne0001,hpotter,Harry Potter,1234.00,2011-11-11";

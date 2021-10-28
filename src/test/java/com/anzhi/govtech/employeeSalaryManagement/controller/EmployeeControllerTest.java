@@ -55,12 +55,15 @@ public class EmployeeControllerTest {
 
         @Nested
         class WhenResponseStatus4xx {
-            @Test
-            public void whenNoSuchEmployee() {
-                when(employeeRepository.findEmployeeById(someEmployee.getId())).thenReturn(Optional.empty());
-                ResponseEntity<HashMap> res = subject.getEmployee(someId);
-                verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "No such employee");
-                verify(employeeRepository, times(1)).findEmployeeById(someId);
+            @Nested
+            class WhenNoSuchEmployee {
+                @Test
+                public void itShouldReturn400() {
+                    when(employeeRepository.findEmployeeById(someEmployee.getId())).thenReturn(Optional.empty());
+                    ResponseEntity<HashMap> res = subject.getEmployee(someId);
+                    verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "No such employee");
+                    verify(employeeRepository, times(1)).findEmployeeById(someId);
+                }
             }
         }
     }
@@ -104,13 +107,16 @@ public class EmployeeControllerTest {
                 }
 
                 @Nested
-                class whenEmployeeLoginIsUnique{
-                    @Test
-                    public void whenSalaryIsNegative() {
-                        Employee negativeSalaryEmployee = someEmployee.withSalary(-100);
-                        ResponseEntity<HashMap> res = subject.postEmployee(negativeSalaryEmployee);
-                        verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Invalid salary");
-                        verify(employeeRepository, never()).save(someEmployee);
+                class WhenEmployeeLoginIsUnique {
+                    @Nested
+                    class WhenSalaryIsNegative {
+                        @Test
+                        public void itShouldReturn400() {
+                            Employee negativeSalaryEmployee = someEmployee.withSalary(-100);
+                            ResponseEntity<HashMap> res = subject.postEmployee(negativeSalaryEmployee);
+                            verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Invalid salary");
+                            verify(employeeRepository, never()).save(someEmployee);
+                        }
                     }
                 }
             }
@@ -188,7 +194,7 @@ public class EmployeeControllerTest {
     @Nested
     class DeleteEmployee {
         @Nested
-        class whenResponseStatus200 {
+        class WhenResponseStatus200 {
             @Test
             public void itShouldReturn() {
                 when(employeeRepository.existsEmployeeById(someId)).thenReturn(true);
@@ -200,14 +206,17 @@ public class EmployeeControllerTest {
         }
 
         @Nested
-        class whenResponseStatus4xx {
-            @Test
-            public void whenNoSuchEmployee() {
-                when(employeeRepository.existsEmployeeById(someId)).thenReturn(false);
-                ResponseEntity<HashMap> res = subject.deleteEmployee(someId);
-                verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "No such employee");
-                verify(employeeRepository, times(1)).existsEmployeeById(someId);
-                verify(employeeRepository, never()).deleteEmployeeById(someId);
+        class WhenResponseStatus4xx {
+            @Nested
+            class WhenNoSuchEmployee {
+                @Test
+                public void itShouldReturn400() {
+                    when(employeeRepository.existsEmployeeById(someId)).thenReturn(false);
+                    ResponseEntity<HashMap> res = subject.deleteEmployee(someId);
+                    verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "No such employee");
+                    verify(employeeRepository, times(1)).existsEmployeeById(someId);
+                    verify(employeeRepository, never()).deleteEmployeeById(someId);
+                }
             }
         }
     }
@@ -215,7 +224,7 @@ public class EmployeeControllerTest {
     @Nested
     class UpdateEmployee {
         @Nested
-        class whenResponseStatus200 {
+        class WhenResponseStatus200 {
             @Test
             public void itShouldReturn() {
                 when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));

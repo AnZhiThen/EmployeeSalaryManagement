@@ -20,12 +20,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class EmployeeServiceTest {
-    private String someId = "E100";
-    private String someLogin = "GT-HPotter";
-    private String someName = "Harry Potter";
-    private double someSalary = 1000.0;
-    private LocalDate someStartDate = LocalDate.parse("2020-01-08");
-    private Employee someEmployee = Employee.builder()
+    private final String someId = "E100";
+    private final String someLogin = "GT-HPotter";
+    private final String someName = "Harry Potter";
+    private final double someSalary = 1000.0;
+    private final LocalDate someStartDate = LocalDate.parse("2020-01-08");
+    private final Employee someEmployee = Employee.builder()
             .id(someId)
             .login(someLogin)
             .name(someName)
@@ -112,9 +112,9 @@ class EmployeeServiceTest {
         class Invalid {
             public static final String otherId = "otherId";
             @Nested
-            class whenEmployeeExists {
+            class WhenEmployeeExists {
                 @Nested
-                class whenLoginIdNotUnique {
+                class WhenLoginIdNotUnique {
                     @Test
                     public void itShouldNotUpdateWhenLoginUnique() throws Exception {
                         Employee someOtherEmployee = someEmployee.withId(otherId);
@@ -125,11 +125,11 @@ class EmployeeServiceTest {
                 }
 
                 @Nested
-                class whenLoginIdUnique {
+                class WhenLoginIdUnique {
                     @Nested
-                    class whenSalaryValid {
+                    class WhenSalaryValid {
                         @Nested
-                        class whenStartDateInvalid {
+                        class WhenStartDateInvalid {
                             @Test
                             public void itShouldNotUpdateWhenStartDateIsDifferent() throws Exception {
                                 Employee someOtherEmployee = someEmployee.withStartDate(LocalDate.parse("2020-10-10"));
@@ -141,7 +141,7 @@ class EmployeeServiceTest {
                     }
 
                     @Nested
-                    class whenSalaryInvalid {
+                    class WhenSalaryInvalid {
                         @Test
                         public void itShouldNotUpdateWhenSalaryIsNegative() throws Exception {
                             Employee someOtherEmployee = someEmployee.withSalary(-1.00);
@@ -154,7 +154,7 @@ class EmployeeServiceTest {
             }
 
             @Nested
-            class whenNoSuchEmployee {
+            class WhenNoSuchEmployee {
                 @Test
                 public void itShouldNotUpdateWhenNoSuchEmployee() throws Exception {
                     Employee someOtherEmployee = someEmployee.withId(otherId);
@@ -211,7 +211,7 @@ class EmployeeServiceTest {
         @Nested
         class ValidParameters {
             @Test
-            public void whenItShouldReturn() throws Exception {
+            public void itShouldReturn() throws Exception {
                 when(employeeRepository.advancedSearch(PageRequest.of(someOffset, someLimit), someMinSalary, someMaxSalary))
                         .thenReturn(Arrays.asList(someEmployee));
                 List<Employee> employeeList = subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, someLimit, someOffset);
@@ -223,35 +223,35 @@ class EmployeeServiceTest {
         @Nested
         class InvalidParameters {
             @Test
-            public void shouldFailWhenInvalidMinSalary() {
+            public void itShouldFailWhenInvalidMinSalary() {
                 assertThatThrownBy(() -> subject.getAll(-1.0, someMaxSalary, someSort, someOrder, someLimit, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min/Max Salary should not be negative");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenInvalidMaxSalary() {
+            public void itShouldFailWhenInvalidMaxSalary() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary, -1.0, someSort, someOrder, someLimit, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min/Max Salary should not be negative");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenMaxIsSmallerThanMin() {
+            public void itShouldFailWhenMaxIsSmallerThanMin() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary + 1, someMinSalary, someSort, someOrder, someLimit, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Min salary is larger than Max Salary");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenLimitNegative() {
+            public void itShouldFailWhenLimitNegative() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, -1, someOffset))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Limit should not be less than 1");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
             }
 
             @Test
-            public void shouldFailWhenOffsetNegative() {
+            public void itShouldFailWhenOffsetNegative() {
                 assertThatThrownBy(() -> subject.getAll(someMinSalary, someMaxSalary, someSort, someOrder, someLimit, -1))
                         .isInstanceOf(Exception.class).hasMessage("Bad parameters: Offset should not be negative");
                 verify(employeeRepository, never()).advancedSearch(any(), any(), any());
@@ -271,22 +271,6 @@ class EmployeeServiceTest {
 
         @Nested
         class Invalid {
-            @Test
-            public void itShouldThrowInvalidId() {
-                Employee invalidIdEmployee = someEmployee.withId(null);
-                invalidEmployeeVerification(invalidIdEmployee, "Invalid ID");
-            }
-            @Test
-            public void itShouldThrowInvalidLogin() {
-                Employee invalidLoginEmployee = someEmployee.withLogin(null);
-                invalidEmployeeVerification(invalidLoginEmployee, "Invalid login");
-            }
-            @Test
-            public void itShouldThrowInvalidName() {
-                Employee invalidNameEmployee = someEmployee.withName(null);
-
-                invalidEmployeeVerification(invalidNameEmployee, "Invalid name");
-            }
             @Test
             public void itShouldThrowInvalidSalary() {
                 Employee negativeSalaryEmployee = someEmployee.withSalary(-100.0);

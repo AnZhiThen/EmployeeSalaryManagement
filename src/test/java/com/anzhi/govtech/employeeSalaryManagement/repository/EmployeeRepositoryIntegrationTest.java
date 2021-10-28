@@ -2,7 +2,6 @@ package com.anzhi.govtech.employeeSalaryManagement.repository;
 
 import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -25,7 +24,7 @@ class EmployeeRepositoryIntegrationTest {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    private Employee someEmployee1 = Employee.builder()
+    private final Employee someEmployee1 = Employee.builder()
             .id("e1")
             .login("hpotter")
             .name("Harry Potter")
@@ -33,7 +32,7 @@ class EmployeeRepositoryIntegrationTest {
             .startDate(LocalDate.parse("2020-01-01"))
             .build();
 
-    private Employee someEmployee2 = Employee.builder()
+    private final Employee someEmployee2 = Employee.builder()
             .id("e2")
             .login("rwesley")
             .name("Ron Weasley")

@@ -1,7 +1,5 @@
 package com.anzhi.govtech.employeeSalaryManagement.controller;
 
-import com.anzhi.govtech.employeeSalaryManagement.model.Employee;
-import com.anzhi.govtech.employeeSalaryManagement.service.EmployeeService;
 import com.anzhi.govtech.employeeSalaryManagement.service.EmployeeUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 

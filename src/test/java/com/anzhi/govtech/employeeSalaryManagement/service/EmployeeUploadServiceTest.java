@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -19,21 +18,21 @@ public class EmployeeUploadServiceTest {
             "e0002, rwesley, Ron Weasley, 19234.50, 2012-11-11",
             "e0003, ssnape, Severus Snape, 4000.0, 2013-11-11"
     ));
-    private Employee someEmployee1 = Employee.builder()
+    private final Employee someEmployee1 = Employee.builder()
             .id("e0001")
             .login("hpotter")
             .name("Harry Potter")
             .salary(1234.00)
             .startDate(LocalDate.parse("2011-11-11"))
             .build();
-    private Employee someEmployee2 = Employee.builder()
+    private final Employee someEmployee2 = Employee.builder()
             .id("e0002")
             .login("rwesley")
             .name("Ron Weasley")
             .salary(19234.50)
             .startDate(LocalDate.parse("2012-11-11"))
             .build();
-    private Employee someEmployee3 = Employee.builder()
+    private final Employee someEmployee3 = Employee.builder()
             .id("e0003")
             .login("ssnape")
             .name("Severus Snape")
