@@ -1,14 +1,17 @@
 package com.anzhi.govtech.employeeSalaryManagement.model;
 
+import com.anzhi.govtech.employeeSalaryManagement.CustomDateValidator;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.With;
-import org.springframework.data.annotation.Id;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 
 import java.time.LocalDate;
@@ -18,15 +21,17 @@ import java.time.LocalDate;
 @Setter
 @Builder
 @With
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "EMPLOYEE")
 public class Employee {
+    @NonNull
     @Id
-    @NonNull
-    private Long eid;
-
-    @NonNull
     private String id;
 
     @NonNull
+    @Column(unique = true)
     private String login;
 
     @NonNull
@@ -35,6 +40,6 @@ public class Employee {
     @Min(value = 0)
     private double salary;
 
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @JsonDeserialize(using = CustomDateValidator.class)
     private LocalDate startDate;
 }
