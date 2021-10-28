@@ -140,7 +140,7 @@ class EmployeeServiceTest {
                                 Employee someOtherEmployee = someEmployee.withStartDate(LocalDate.parse("2020-10-10"));
                                 when(employeeRepository.findEmployeeById(otherId)).thenReturn(Optional.of(someEmployee));
                                 when(employeeRepository.existsEmployeeByLoginAndIdNot(someOtherEmployee.getLogin(), otherId)).thenReturn(false);
-                                verifyExceptionThrownAndNotSavedToRepo(someOtherEmployee, "Invalid start date");
+                                verifyExceptionThrownAndNotSavedToRepo(someOtherEmployee, "Employee start date cannot be updated");
                             }
                         }
                     }

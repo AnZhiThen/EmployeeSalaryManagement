@@ -46,7 +46,7 @@ public class EmployeeService {
         }
 
         if (!currentEmployee.get().getStartDate().isEqual(e.getStartDate())) {
-            throw new Exception("Invalid start date");
+            throw new Exception("Employee start date cannot be updated");
         }
 
         employeeRepository.save(e);

@@ -279,7 +279,7 @@ public class EmployeeControllerTest {
                                 when(employeeRepository.findEmployeeById(someId)).thenReturn(Optional.of(someEmployee));
                                 Employee someOtherEmployee = someEmployee.withStartDate(LocalDate.parse("2020-08-09"));
                                 ResponseEntity<HashMap> res = subject.updateEmployee(someId, someOtherEmployee);
-                                verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Invalid start date");
+                                verifyResponseEntityWithMessage(res, HttpStatus.BAD_REQUEST, "Employee start date cannot be updated");
                                 verify(employeeRepository, never()).save(any());
                             }
                         }
