@@ -18,6 +18,7 @@ The service also supports an upload API which accepts a CSV file so that group E
 ## Usage
 #### 💻 How to setup
 Clone the repository:
+
 Run command:
 ```
 https://github.com/AnZhiThen/EmployeeSalaryManagement.git
@@ -48,9 +49,9 @@ gradlew test -t
 
 #### Prerequisites:
 
-✔️ Have docker installed:  [Docker](https://docs.docker.com/desktop/)
+✔️ Have docker installed: [Docker](https://docs.docker.com/desktop/)
 
-✔️ Created the build in ([Build instructions](#creating-the-build))
+✔️ Created the build for the project
 
 #### Building the docker image:
 Launch docker application
